@@ -1,15 +1,23 @@
-var readerLoad = function(e) {
+var loadArrayBuffer = function(e) {
   // e.target.result === reader.result
   console.log(e.target.result.byteLength);
   shp(e.target.result).then(function (geojson) {
     console.log(geojson);
+  }).catch(function(err) {
+    console.log(err);
   });
 }
 
-var handleZippedShapefile = function (file) {
+var handleZippedShapefileBuffer = function (file) {
   var reader = new FileReader();
-  reader.onload = readerLoad;
+  reader.onload = loadArrayBuffer;
   reader.readAsArrayBuffer(file);
+}
+
+var handleZippedShapefileFname = function (file) {
+  shp(file.name).then(function (geojson) {
+      console.log(geojson);
+    });
 }
 
 var makeButtonOverlay = function (div, b, title) {
@@ -43,11 +51,20 @@ addButton = function (handler, title) {
   return div;
 };
 
-var zippedShapeControl = L.Control.extend({ //creating the buttons
+var zippedShapeControlBuffer = L.Control.extend({ //creating the buttons
   options: {
     position: 'topright'
   },
-  onAdd: addButton.bind(this, handleZippedShapefile, "Upload Zipped Shapefile")
+  onAdd: addButton.bind(this, handleZippedShapefileBuffer, "Upload Zipped Shapefile (ArrayBuffer based")
 });
 
-m.addControl(new zippedShapeControl());
+m.addControl(new zippedShapeControlBuffer());
+
+var zippedShapeControlFname = L.Control.extend({ //creating the buttons
+  options: {
+    position: 'topright'
+  },
+  onAdd: addButton.bind(this, handleZippedShapefileFname, "Upload Zipped Shapefile (filename based)")
+});
+
+m.addControl(new zippedShapeControlFname());
